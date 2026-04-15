@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BlinxHub | HSR | ToolKit</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:           #06050F;
+  --surface:      #0A0917;
+  --card:         #0F0D20;
+  --card-hover:   #141228;
+  --elevated:     #1A1730;
+  --accent:       #7B68EE;
+  --accent-bright:#A594FF;
+  --accent-dim:   rgba(123,104,238,0.10);
+  --accent-glow:  rgba(123,104,238,0.25);
+  --accent-border:rgba(123,104,238,0.22);
+  --gold:         #FFD166;
+  --gold-dim:     rgba(255,209,102,0.08);
+  --border:       rgba(255,255,255,0.05);
+  --border-mid:   rgba(255,255,255,0.09);
+  --text:         #F0ECFF;
+  --text2:        #7A748A;
+  --text3:        #35324A;
+  --ok:           #4ADE80;
+  --ok-dim:       rgba(74,222,128,0.08);
+  --ok-b:         rgba(74,222,128,0.18);
+  --warn:         #FBBF24;
+  --warn-dim:     rgba(251,191,36,0.08);
+  --warn-b:       rgba(251,191,36,0.2);
+  --err:          #F87171;
+  --err-dim:      rgba(248,113,113,0.08);
+  --err-b:        rgba(248,113,113,0.2);
+  --sidebar:      200px;
+  --r:            14px;
+  --r-sm:         9px;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ════════════════════════════════════════════
+   SPLASH
+════════════════════════════════════════════ */
+#splash {
+  position: fixed; inset: 0; background: var(--bg);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  z-index: 9999; transition: opacity 0.7s ease, visibility 0.7s ease;
+}
+#splash.out { opacity: 0; visibility: hidden; pointer-events: none; }
+.sp-ring {
+  width: 76px; height: 76px; border-radius: 24px;
+  background: linear-gradient(135deg, rgba(123,104,238,0.15), rgba(165,148,255,0.04));
+  border: 1px solid var(--accent-border);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 24px; position: relative;
+  opacity: 0; transform: scale(0.85) translateY(8px);
+  animation: spPop 0.6s cubic-bezier(0.34,1.56,0.64,1) forwards 0.2s;
+  box-shadow: 0 0 40px rgba(123,104,238,0.12);
+}
+.sp-ring::before { content: ''; position: absolute; inset: -12px; border-radius: 36px; border: 1px solid rgba(123,104,238,0.06); }
+.sp-words { opacity: 0; transform: translateY(8px); animation: spUp 0.5s ease forwards 0.55s; text-align: center; }
+.sp-words h1 { font-size: 17px; font-weight: 700; letter-spacing: 0.04em; color: var(--text); }
+.sp-words p  { font-size: 10px; color: var(--text3); letter-spacing: 0.18em; text-transform: uppercase; margin-top: 4px; font-weight: 500; }
+.sp-bar { width: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--accent), transparent); margin-top: 22px; opacity: 0; animation: spBar 0.7s ease forwards 0.85s; }
+@keyframes spPop { to { opacity: 1; transform: scale(1) translateY(0); } }
+@keyframes spUp  { to { opacity: 1; transform: translateY(0); } }
+@keyframes spBar { to { opacity: 1; width: 60px; } }
+
+/* ════════════════════════════════════════════
+   LOCAL LOGIN GATE
+════════════════════════════════════════════ */
+#local-gate {
+  position: fixed; inset: 0; z-index: 9998;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity 0.45s ease;
+}
+#local-gate.out { opacity: 0; pointer-events: none; }
+
+.ll-wrap {
+  width: 330px;
+  background: var(--card);
+  border: 1px solid var(--accent-border);
+  border-radius: 20px;
+  padding: 36px 28px 28px;
+  box-shadow: 0 0 100px rgba(123,104,238,0.12), 0 0 40px rgba(0,0,0,0.5);
+  position: relative; overflow: hidden;
+  animation: gateIn 0.45s cubic-bezier(0.34,1.3,0.64,1) forwards;
+}
+@keyframes gateIn {
+  from { opacity: 0; transform: scale(0.94) translateY(10px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.ll-wrap::before {
+  content: ''; position: absolute; top: -60px; right: -60px;
+  width: 220px; height: 220px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(123,104,238,0.07), transparent 70%);
+  pointer-events: none;
+}
+.ll-logo {
+  display: flex; flex-direction: column; align-items: center;
+  margin-bottom: 26px; position: relative; z-index: 1;
+}
+.ll-logo-ic {
+  width: 58px; height: 58px; border-radius: 18px;
+  background: linear-gradient(135deg, rgba(123,104,238,0.2), rgba(123,104,238,0.04));
+  border: 1px solid var(--accent-border);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 14px;
+  box-shadow: 0 0 40px rgba(123,104,238,0.18);
+}
+.ll-title { font-size: 19px; font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
+.ll-sub   { font-size: 12px; color: var(--text2); margin-top: 3px; }
+
+.ll-field { margin-bottom: 12px; position: relative; z-index: 1; }
+.ll-lbl   {
+  display: block; font-size: 10px; font-weight: 700;
+  color: var(--text3); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 6px;
+}
+.ll-inp   {
+  width: 100%; padding: 11px 14px;
+  background: var(--surface); border: 1px solid var(--border-mid);
+  border-radius: var(--r-sm); color: var(--text);
+  font-family: 'JetBrains Mono', monospace; font-size: 13px;
+  outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+}
+.ll-inp:focus {
+  border-color: var(--accent-border);
+  box-shadow: 0 0 0 3px rgba(123,104,238,0.1);
+}
+.ll-inp::placeholder { color: var(--text3); }
+.ll-err {
+  font-size: 12px; color: var(--err);
+  background: var(--err-dim); border: 1px solid var(--err-b);
+  border-radius: var(--r-sm); padding: 9px 12px; margin-bottom: 12px;
+  display: none; position: relative; z-index: 1;
+}
+.ll-err.show { display: block; }
+.ll-divider {
+  border: none; border-top: 1px solid var(--border);
+  margin: 18px 0; position: relative; z-index: 1;
+}
+.ll-foot {
+  font-size: 11px; color: var(--text3); text-align: center;
+  margin-top: 14px; font-family: 'JetBrains Mono', monospace;
+  position: relative; z-index: 1;
+}
+
+/* ════════════════════════════════════════════
+   APP SHELL
+════════════════════════════════════════════ */
+.app { display: flex; height: 100vh; opacity: 0; transition: opacity 0.5s ease; }
+.app.ready { opacity: 1; }
+.app::before {
+  content: ''; position: fixed; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(ellipse 600px 400px at 15% 0%,  rgba(123,104,238,0.05) 0%, transparent 70%),
+    radial-gradient(ellipse 400px 300px at 85% 100%, rgba(100,80,200,0.04)  0%, transparent 70%);
+}
+
+/* ════════════════════════════════════════════
+   SIDEBAR
+════════════════════════════════════════════ */
+.sidebar {
+  width: var(--sidebar); flex-shrink: 0;
+  background: var(--surface); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; position: relative; z-index: 10;
+}
+.sidebar::after {
+  content: ''; position: absolute; top: 0; right: 0; width: 1px; height: 100%;
+  background: linear-gradient(180deg, transparent, var(--accent-glow) 30%, var(--accent-glow) 70%, transparent);
+  opacity: 0.5;
+}
+.sb-top { padding: 18px 14px 14px; border-bottom: 1px solid var(--border); }
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand-ic {
+  width: 32px; height: 32px; border-radius: 10px;
+  background: linear-gradient(135deg, rgba(123,104,238,0.2), rgba(123,104,238,0.04));
+  border: 1px solid var(--accent-border);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  box-shadow: 0 0 16px rgba(123,104,238,0.1);
+}
+.brand-n { font-size: 12px; font-weight: 700; color: var(--text); letter-spacing: 0.02em; }
+.brand-s { font-size: 10px; color: var(--accent); letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; }
+.nav { flex: 1; padding: 10px 8px; display: flex; flex-direction: column; gap: 1px; overflow-y: auto; }
+.nav-lbl {
+  font-size: 9px; font-weight: 700; color: var(--text3);
+  letter-spacing: 0.14em; text-transform: uppercase; padding: 10px 8px 4px;
+}
+.nb {
+  display: flex; align-items: center; gap: 9px; padding: 8px 10px;
+  border-radius: var(--r-sm); border: 1px solid transparent; background: none;
+  color: var(--text2); font-size: 13px; font-weight: 500;
+  width: 100%; text-align: left; cursor: pointer; font-family: inherit;
+  transition: background 0.15s, color 0.15s; position: relative; letter-spacing: 0.01em;
+}
+.nb:hover  { background: rgba(255,255,255,0.03); color: var(--text); }
+.nb.on     { background: linear-gradient(90deg, rgba(123,104,238,0.14), rgba(123,104,238,0.03)); color: var(--accent-bright); border-color: rgba(123,104,238,0.12); }
+.nb.on::before {
+  content: ''; position: absolute; left: -1px; top: 50%; transform: translateY(-50%);
+  width: 3px; height: 50%; background: var(--accent-bright);
+  border-radius: 0 3px 3px 0; box-shadow: 0 0 8px var(--accent);
+}
+.nb svg { width: 14px; height: 14px; flex-shrink: 0; opacity: 0.6; }
+.nb.on svg { opacity: 1; }
+.nb:disabled { opacity: 0.28; cursor: default; }
+.ntag {
+  margin-left: auto; font-size: 9px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase; background: var(--gold-dim); color: var(--gold);
+  border: 1px solid rgba(255,209,102,0.15); border-radius: 99px; padding: 1px 7px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.sb-foot { padding: 10px 8px; border-top: 1px solid var(--border); }
+.acct-pill {
+  display: flex; align-items: center; gap: 9px; padding: 8px 10px;
+  border-radius: var(--r-sm); cursor: pointer; transition: background 0.15s;
+}
+.acct-pill:hover { background: rgba(255,255,255,0.03); }
+.av {
+  width: 26px; height: 26px; border-radius: 8px;
+  background: linear-gradient(135deg, rgba(123,104,238,0.25), rgba(123,104,238,0.07));
+  border: 1px solid var(--accent-border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: var(--accent-bright); flex-shrink: 0;
+}
+.acct-nm { font-size: 12px; font-weight: 500; color: var(--text); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dot-on  { width: 6px; height: 6px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 6px var(--ok); flex-shrink: 0; }
+
+/* ════════════════════════════════════════════
+   CONTENT + PAGES
+════════════════════════════════════════════ */
+.content { flex: 1; overflow-y: auto; padding: 26px 22px; position: relative; z-index: 1; }
+.content::-webkit-scrollbar { width: 3px; }
+.content::-webkit-scrollbar-track { background: transparent; }
+.content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.05); border-radius: 3px; }
+.page     { display: none; animation: pgIn 0.22s ease; }
+.page.on  { display: block; }
+@keyframes pgIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+.pg-eye   { font-size: 9.5px; font-weight: 700; color: var(--accent); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 4px; }
+.pg-title { font-size: 22px; font-weight: 800; color: var(--text); letter-spacing: -0.03em; line-height: 1.2; }
+.pg-sub   { font-size: 13px; color: var(--text2); margin-top: 3px; }
+.pg-head  { margin-bottom: 20px; }
+
+/* ════════════════════════════════════════════
+   CARDS
+════════════════════════════════════════════ */
+.card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 18px; margin-bottom: 10px; transition: border-color 0.2s; }
+.card:hover { border-color: rgba(255,255,255,0.07); }
+.card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.card-h   { font-size: 11px; font-weight: 700; color: var(--text2); display: flex; align-items: center; gap: 7px; text-transform: uppercase; letter-spacing: 0.1em; }
+.card-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 6px var(--accent); flex-shrink: 0; }
+
+/* ════════════════════════════════════════════
+   STATS
+════════════════════════════════════════════ */
+.sr { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 10px; }
+.sb { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 14px 16px; }
+.sl { font-size: 9.5px; font-weight: 700; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 8px; }
+.sv { font-size: 28px; font-weight: 800; color: var(--text); letter-spacing: -0.04em; line-height: 1; }
+.sh { font-size: 11px; color: var(--text2); margin-top: 4px; }
+
+/* ════════════════════════════════════════════
+   BUTTONS
+════════════════════════════════════════════ */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 10px 20px; border-radius: var(--r-sm); font-size: 13px; font-weight: 700; cursor: pointer; border: none; font-family: inherit; letter-spacing: 0.02em; transition: all 0.15s ease; }
+.btn-full { width: 100%; }
+.btn-p {
+  background: linear-gradient(135deg, #7B68EE, #9D8FF9); color: #fff;
+  box-shadow: 0 2px 20px rgba(123,104,238,0.25), inset 0 1px 0 rgba(255,255,255,0.15);
+}
+.btn-p:hover  { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(123,104,238,0.4); }
+.btn-p:active { transform: scale(0.98); }
+.btn-p:disabled { opacity: 0.35; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-g { background: rgba(255,255,255,0.04); color: var(--text2); border: 1px solid var(--border); }
+.btn-g:hover { background: rgba(255,255,255,0.07); color: var(--text); }
+.btn-d { background: var(--err-dim); color: var(--err); border: 1px solid var(--err-b); }
+.btn-d:hover { background: rgba(248,113,113,0.14); }
+
+/* ════════════════════════════════════════════
+   HOME HERO
+════════════════════════════════════════════ */
+.lhero { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 44px 24px; }
+.hero-ic {
+  width: 72px; height: 72px; border-radius: 22px;
+  background: linear-gradient(135deg, rgba(123,104,238,0.18), rgba(123,104,238,0.04));
+  border: 1px solid var(--accent-border);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 22px; position: relative;
+  box-shadow: 0 0 40px rgba(123,104,238,0.12);
+}
+.hero-ic::after { content: ''; position: absolute; inset: -11px; border-radius: 33px; border: 1px solid rgba(123,104,238,0.07); }
+.lhero h2 { font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 8px; letter-spacing: -0.025em; }
+.lhero p  { font-size: 13px; color: var(--text2); max-width: 280px; line-height: 1.7; margin-bottom: 22px; }
+.mtags { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-top: 16px; }
+.mtag  { font-size: 11px; color: var(--text3); background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 99px; padding: 3px 11px; }
+.banner {
+  background: linear-gradient(135deg, var(--card) 0%, rgba(123,104,238,0.06) 100%);
+  border: 1px solid var(--accent-border); border-radius: var(--r);
+  padding: 20px; margin-bottom: 10px; position: relative; overflow: hidden;
+}
+.banner::before {
+  content: ''; position: absolute; top: -40px; right: -40px;
+  width: 200px; height: 200px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(123,104,238,0.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+.bn-title { font-size: 16px; font-weight: 800; color: var(--text); letter-spacing: -0.02em; margin-bottom: 4px; }
+.bn-sub   { font-size: 12px; color: var(--text2); line-height: 1.6; }
+.fg { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.fc {
+  background: rgba(255,255,255,0.02); border: 1px solid var(--border);
+  border-radius: var(--r); padding: 14px; display: flex; align-items: flex-start;
+  gap: 10px; cursor: pointer; transition: all 0.18s;
+}
+.fc:hover { border-color: var(--accent-border); background: rgba(123,104,238,0.04); transform: translateY(-1px); }
+.fc.dis   { opacity: 0.3; cursor: default; pointer-events: none; }
+.fc-ic {
+  width: 34px; height: 34px; border-radius: 9px;
+  background: linear-gradient(135deg, rgba(123,104,238,0.2), rgba(123,104,238,0.04));
+  border: 1px solid var(--accent-border);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.fc-t { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.fc-s { font-size: 11px; color: var(--text2); line-height: 1.5; }
+
+/* ════════════════════════════════════════════
+   CHECK-IN
+════════════════════════════════════════════ */
+.ci-hero {
+  position: relative; border-radius: var(--r); margin-bottom: 10px; overflow: hidden;
+  background: linear-gradient(135deg, #0D0B22 0%, #12103A 60%, #0A0917 100%);
+  border: 1px solid rgba(123,104,238,0.22); padding: 22px;
+  box-shadow: 0 0 60px rgba(123,104,238,0.06);
+}
+.ci-hero::before {
+  content: ''; position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 280px 180px at 80% 50%, rgba(123,104,238,0.1) 0%, transparent 70%),
+    radial-gradient(ellipse 180px 120px at 10% 10%, rgba(100,80,220,0.07) 0%, transparent 70%);
+  pointer-events: none;
+}
+.ci-hero::after {
+  content: ''; position: absolute; top: 0; left: -100%; width: 55%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.025), transparent);
+  animation: shimmer 4s ease-in-out infinite;
+}
+@keyframes shimmer { 0%,100% { left: -100%; } 55% { left: 150%; } }
+.ci-hero-inner { position: relative; z-index: 1; display: flex; align-items: center; gap: 18px; }
+.ci-img-box {
+  width: 86px; height: 86px; border-radius: 16px; flex-shrink: 0;
+  background: rgba(123,104,238,0.07); border: 1px solid rgba(123,104,238,0.18);
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+  box-shadow: 0 0 30px rgba(123,104,238,0.12), 0 8px 32px rgba(0,0,0,0.5); position: relative;
+}
+.ci-img-box::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 55%);
+  pointer-events: none;
+}
+.ci-img-box img { width: 68px; height: 68px; object-fit: contain; }
+.ci-hero-meta   { flex: 1; min-width: 0; }
+.ci-hero-label  { font-size: 9px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent-bright); margin-bottom: 5px; opacity: 0.75; }
+.ci-hero-name   { font-size: 19px; font-weight: 800; color: var(--text); letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 6px; }
+.ci-hero-qty    {
+  display: inline-flex; align-items: center;
+  font-size: 12px; font-weight: 600; color: var(--text2);
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 99px; padding: 2px 10px; font-family: 'JetBrains Mono', monospace;
+}
+.ci-streak-ring {
+  flex-shrink: 0; width: 66px; height: 66px; border-radius: 50%;
+  background: linear-gradient(135deg, rgba(123,104,238,0.18), rgba(123,104,238,0.04));
+  border: 1px solid rgba(123,104,238,0.28);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  box-shadow: 0 0 20px rgba(123,104,238,0.1);
+}
+.ci-streak-ring .num { font-size: 22px; font-weight: 800; color: var(--accent-bright); line-height: 1; letter-spacing: -0.03em; }
+.ci-streak-ring .lbl { font-size: 8px; color: var(--text2); font-weight: 700; letter-spacing: 0.09em; text-transform: uppercase; margin-top: 1px; }
+.ci-claim-btn {
+  width: 100%; padding: 14px; border: none; border-radius: var(--r);
+  font-family: 'Outfit', sans-serif; font-size: 15px; font-weight: 800;
+  letter-spacing: 0.02em; cursor: pointer; position: relative; overflow: hidden;
+  background: linear-gradient(100deg, #6B58E0 0%, #9D8FF9 50%, #7B68EE 100%);
+  background-size: 200% 100%; background-position: left; color: #fff;
+  box-shadow: 0 4px 30px rgba(123,104,238,0.3), inset 0 1px 0 rgba(255,255,255,0.18);
+  transition: all 0.22s ease; margin-bottom: 10px;
+}
+.ci-claim-btn:hover {
+  background-position: right;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 40px rgba(123,104,238,0.5), inset 0 1px 0 rgba(255,255,255,0.22);
+}
+.ci-claim-btn:active { transform: scale(0.99) translateY(0); }
+.ci-claim-btn:disabled { opacity: 0.38; cursor: not-allowed; transform: none; box-shadow: none; }
+.ci-claim-btn::before {
+  content: ''; position: absolute; top: 0; left: -100%; width: 55%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  transition: left 0.55s ease;
+}
+.ci-claim-btn:hover::before { left: 150%; }
+.ci-claim-inner { display: flex; align-items: center; justify-content: center; gap: 8px; position: relative; z-index: 1; }
+.ci-status { display: none; padding: 11px 16px; border-radius: var(--r-sm); font-size: 13px; font-weight: 600; align-items: center; gap: 8px; margin-bottom: 10px; }
+.ci-status.show { display: flex; }
+.ci-status.ok   { background: rgba(74,222,128,0.07);  color: #4ADE80; border: 1px solid rgba(74,222,128,0.15); }
+.ci-status.dup  { background: rgba(251,191,36,0.07);  color: #FBBF24; border: 1px solid rgba(251,191,36,0.18); }
+.ci-status.err  { background: rgba(248,113,113,0.07); color: #F87171; border: 1px solid rgba(248,113,113,0.18); }
+.rg { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.rc {
+  aspect-ratio: 1; border-radius: 10px;
+  background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 3px; position: relative; overflow: hidden; transition: border-color 0.2s, transform 0.15s;
+}
+.rc:hover { transform: translateY(-1px); border-color: rgba(255,255,255,0.08); }
+.rc img   { width: 54%; height: 54%; object-fit: contain; }
+.rc .ct   { font-size: 8.5px; color: var(--text3); font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+.rc.past  { background: rgba(74,222,128,0.025); border-color: rgba(74,222,128,0.06); }
+.rc.past img { opacity: 0.3; filter: saturate(0.2); }
+.rc.past .ct { color: rgba(74,222,128,0.3); }
+.rc .ck { position: absolute; top: 4px; right: 5px; font-size: 9px; color: var(--ok); font-weight: 800; font-family: 'JetBrains Mono', monospace; text-shadow: 0 0 8px rgba(74,222,128,0.5); }
+.rc.today {
+  background: linear-gradient(135deg, rgba(123,104,238,0.12), rgba(100,80,220,0.05));
+  border-color: rgba(123,104,238,0.32);
+  box-shadow: 0 0 18px rgba(123,104,238,0.1), inset 0 0 16px rgba(123,104,238,0.04);
+  animation: todayPulse 2.5s ease-in-out infinite;
+}
+.rc.today img { filter: drop-shadow(0 0 5px rgba(123,104,238,0.45)); }
+.rc.today .ct { color: var(--accent-bright); }
+@keyframes todayPulse {
+  0%,100% { box-shadow: 0 0 14px rgba(123,104,238,0.08), inset 0 0 14px rgba(123,104,238,0.03); }
+  50%      { box-shadow: 0 0 26px rgba(123,104,238,0.2),  inset 0 0 18px rgba(123,104,238,0.07); }
+}
+
+/* ════════════════════════════════════════════
+   SETTINGS
+════════════════════════════════════════════ */
+.srow { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.srow:last-child { border-bottom: none; }
+.srow h4 { font-size: 13px; font-weight: 600; color: var(--text); }
+.srow p  { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.svl  { font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
+.toggle { width: 36px; height: 20px; border-radius: 10px; background: rgba(255,255,255,0.06); border: 1px solid var(--border); cursor: pointer; position: relative; transition: background 0.25s, border-color 0.25s; flex-shrink: 0; }
+.toggle::after { content: ''; position: absolute; width: 14px; height: 14px; background: var(--text3); border-radius: 50%; top: 2px; left: 2px; transition: left 0.25s, background 0.25s, box-shadow 0.25s; }
+.toggle.on { background: var(--accent); border-color: var(--accent); }
+.toggle.on::after { left: 18px; background: #fff; box-shadow: 0 0 8px rgba(123,104,238,0.5); }
+
+/* ════════════════════════════════════════════
+   OWNER PANEL
+════════════════════════════════════════════ */
+.ou-table { width: 100%; border-collapse: collapse; }
+.ou-table th {
+  font-size: 9px; font-weight: 700; color: var(--text3);
+  text-transform: uppercase; letter-spacing: 0.1em;
+  padding: 0 10px 10px; text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.ou-table td {
+  padding: 11px 10px; font-size: 12px; color: var(--text2);
+  border-bottom: 1px solid rgba(255,255,255,0.03); vertical-align: middle;
+}
+.ou-table tbody tr:last-child td { border-bottom: none; }
+.ou-table tbody tr:hover td { background: rgba(255,255,255,0.01); }
+.rbadge {
+  font-size: 10px; font-weight: 700; padding: 2px 9px; border-radius: 99px;
+  font-family: 'JetBrains Mono', monospace; text-transform: uppercase; letter-spacing: 0.07em;
+}
+.rbadge.owner { background: var(--gold-dim); color: var(--gold); border: 1px solid rgba(255,209,102,0.15); }
+.rbadge.user  { background: var(--accent-dim); color: var(--accent-bright); border: 1px solid var(--accent-border); }
+.sdot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+.sdot.on  { background: var(--ok);   box-shadow: 0 0 6px var(--ok); }
+.sdot.off { background: var(--text3); }
+.ou-empty { text-align: center; padding: 28px 0; color: var(--text3); font-size: 13px; }
+
+/* ════════════════════════════════════════════
+   RESET KEY MODAL
+════════════════════════════════════════════ */
+#rk-modal {
+  position: fixed; inset: 0; z-index: 99997;
+  background: rgba(6,5,15,0.88); backdrop-filter: blur(6px);
+  display: none; align-items: center; justify-content: center;
+}
+#rk-modal.show { display: flex; }
+.rk-card {
+  background: var(--card); border: 1px solid var(--accent-border);
+  border-radius: var(--r); padding: 24px; width: 300px;
+  box-shadow: 0 0 60px rgba(0,0,0,0.5);
+  animation: gateIn 0.25s ease;
+}
+.rk-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+.rk-sub   { font-size: 12px; color: var(--text2); margin-bottom: 16px; }
+
+/* ── Spinner ── */
+.spin { width: 15px; height: 15px; flex-shrink: 0; border: 2px solid rgba(255,255,255,0.2); border-top-color: #fff; border-radius: 50%; animation: rot 0.6s linear infinite; }
+@keyframes rot { to { transform: rotate(360deg); } }
+
+.vnote { font-size: 11px; color: var(--text3); text-align: center; padding: 16px 0 2px; letter-spacing: 0.06em; font-family: 'JetBrains Mono', monospace; }
+</style>
+</head>
+<body>
+
+
+  
+
+<!-- ════ SPLASH ════ -->
+<div id="splash">
+  <div class="sp-ring">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+      <path d="M12 2L2 7l10 5 10-5-10-5z" stroke="#7B68EE" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M2 17l10 5 10-5" stroke="#7B68EE" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M2 12l10 5 10-5" stroke="#9D8FF9" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </div>
+  <div class="sp-words"><h1>BlinxHub</h1><p>HSR · Toolkit</p></div>
+  <div class="sp-bar"></div>
+</div>
+
+<!-- ════ LOCAL LOGIN GATE ════ -->
+<div id="local-gate" style="display:none">
+  <div class="ll-wrap">
+    <div class="ll-logo">
+      <div class="ll-logo-ic">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2L2 7l10 5 10-5-10-5z" stroke="#7B68EE" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke="#9D8FF9" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="ll-title">BlinxHub</div>
+      <div class="ll-sub">Enter your credentials to continue</div>
+    </div>
+
+    <div class="ll-field">
+      <label class="ll-lbl" for="ll-username">Username</label>
+      <input class="ll-inp" id="ll-username" type="text" placeholder="your username" autocomplete="off"
+             onkeydown="if(event.key==='Enter')id('ll-key').focus()">
+    </div>
+    <div class="ll-field">
+      <label class="ll-lbl" for="ll-key">Key</label>
+      <input class="ll-inp" id="ll-key" type="password" placeholder="your access key"
+             onkeydown="if(event.key==='Enter')doLocalLogin()">
+    </div>
+
+    <div class="ll-err" id="ll-err"></div>
+
+    <button class="btn btn-p btn-full" id="ll-submit" onclick="doLocalLogin()" style="padding:12px;font-size:14px;margin-top:4px">
+      Sign in
+    </button>
+    <div class="ll-foot" style="margin-top:16px">BlinxHub · Access restricted</div>
+  </div>
+</div>
+
+<!-- ════ RESET KEY MODAL ════ -->
+<div id="rk-modal">
+  <div class="rk-card">
+    <div class="rk-title">Reset Key</div>
+    <div class="rk-sub" id="rk-for">for —</div>
+    <div class="ll-field">
+      <label class="ll-lbl">New Key</label>
+      <input class="ll-inp" id="rk-newkey" type="text" placeholder="new-access-key"
+             onkeydown="if(event.key==='Enter')confirmResetKey()" autocomplete="off">
+    </div>
+    <div class="ll-err" id="rk-err" style="margin-top:8px"></div>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn btn-g" style="flex:1" onclick="closeResetKey()">Cancel</button>
+      <button class="btn btn-p" style="flex:1" onclick="confirmResetKey()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ APP SHELL ════ -->
+<div class="app" id="app">
+  <div class="sidebar">
+    <div class="sb-top">
+      <div class="brand">
+        <div class="brand-ic">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2L2 7l10 5 10-5-10-5z" stroke="#7B68EE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke="#9D8FF9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div><div class="brand-n">BlinxHub</div><div class="brand-s">HSR · Toolkit</div></div>
+      </div>
+    </div>
+
+    <div class="nav">
+      <div class="nav-lbl">General</div>
+      <button class="nb on" data-p="home" onclick="go('home',this)">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 0 0-1.414 0l-7 7A1 1 0 0 0 3 11h1v6a1 1 0 0 0 1 1h4v-4h2v4h4a1 1 0 0 0 1-1v-6h1a1 1 0 0 0 .707-1.707l-7-7z"/></svg>
+        Overview
+      </button>
+
+      <div class="nav-lbl">Tools</div>
+      <button class="nb" data-p="checkin" onclick="go('checkin',this)">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 0 0-1 1v1H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1V3a1 1 0 1 0-2 0v1H7V3a1 1 0 0 0-1-1zm0 5a1 1 0 0 0 0 2h8a1 1 0 1 0 0-2H6z" clip-rule="evenodd"/></svg>
+        Daily Check-in
+      </button>
+      <button class="nb" disabled>
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0 1 12 2v5h4a1 1 0 0 1 .82 1.573l-7 10A1 1 0 0 1 8 18v-5H4a1 1 0 0 1-.82-1.573l7-10a1 1 0 0 1 1.12-.38z" clip-rule="evenodd"/></svg>
+        Stamina Tracker <span class="ntag">Soon</span>
+      </button>
+      <button class="nb" disabled>
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 2a1 1 0 0 0 0 2h2a1 1 0 1 0 0-2H9z"/><path fill-rule="evenodd" d="M4 5a2 2 0 0 1 2-2 3 3 0 0 0 3 3h2a3 3 0 0 0 3-3 2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5zm3 4a1 1 0 0 0 0 2h.01a1 1 0 1 0 0-2H7zm3 0a1 1 0 0 0 0 2h3a1 1 0 1 0 0-2h-3zm-3 4a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H7zm3 0a1 1 0 1 0 0 2h3a1 1 0 1 0 0-2h-3z" clip-rule="evenodd"/></svg>
+        Notes <span class="ntag">Soon</span>
+      </button>
+
+      <!-- Owner nav — shown only if role === owner -->
+      <div class="nav-lbl" id="owner-nav-lbl" style="display:none">Owner</div>
+      <button class="nb" id="owner-nav-btn" data-p="owner" style="display:none" onclick="go('owner',this)">
+        <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0zm-6-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm-2 4a5 5 0 0 0-4.546 2.916A5.986 5.986 0 0 0 10 16a5.986 5.986 0 0 0 4.546-2.084A5 5 0 0 0 10 11z" clip-rule="evenodd"/></svg>
+        Owner Panel
+      </button>
+    </div>
+
+    <div class="sb-foot">
+      <!-- Shown when HoYoLab is logged in -->
+      <div id="sb-in" style="display:none">
+        <div class="acct-pill" onclick="go('settings',document.querySelector('[data-p=settings]'))">
+          <div class="av" id="sb-av">?</div>
+          <span class="acct-nm" id="sb-nm">—</span>
+          <div class="dot-on"></div>
+        </div>
+      </div>
+      <!-- Settings nav when no HoYoLab account -->
+      <div id="sb-out">
+        <button class="nb" data-p="settings" onclick="go('settings',this)">
+          <svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 0 1-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 0 1 .947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 0 1 2.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 0 1 2.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 0 1 .947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 0 1-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 0 1-2.287-.947zM10 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" clip-rule="evenodd"/></svg>
+          Settings
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ CONTENT ════ -->
+  <div class="content">
+
+    <!-- OVERVIEW PAGE -->
+    <div class="page on" id="page-home">
+      <div id="h-out">
+        <div class="card">
+          <div class="lhero">
+            <div class="hero-ic">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
+                <path d="M12 2L2 7l10 5 10-5-10-5z" stroke="#7B68EE" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M2 17l10 5 10-5M2 12l10 5 10-5" stroke="#9D8FF9" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <h2>Welcome to BlinxHub</h2>
+            <p>Sign in with your HoYoLab account to access daily check-ins, tracking, and more.</p>
+            <button class="btn btn-p" onclick="openLogin()" style="padding:12px 34px;font-size:14px">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+              Sign in with HoYoLab
+            </button>
+            <div class="mtags">
+              <span class="mtag">Email</span><span class="mtag">Google</span><span class="mtag">Twitter / X</span><span class="mtag">Facebook</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="h-in" style="display:none">
+        <div class="banner">
+          <div class="bn-title" id="h-welcome">Welcome back</div>
+          <div class="bn-sub">Your toolkit is ready — don't forget to claim today's reward.</div>
+        </div>
+        <div class="sr">
+          <div class="sb"><div class="sl">Streak</div><div class="sv" id="h-streak">—</div><div class="sh">days this month</div></div>
+          <div class="sb"><div class="sl">Status</div><div class="sv" id="h-status" style="font-size:13px;padding-top:6px">—</div><div class="sh" id="h-status-s">—</div></div>
+          <div class="sb"><div class="sl">Features</div><div class="sv">1</div><div class="sh">of 3 active</div></div>
+        </div>
+        <div class="card">
+          <div class="card-top"><div class="card-h"><span class="card-dot"></span>Quick access</div></div>
+          <div class="fg">
+            <div class="fc" onclick="go('checkin',document.querySelector('[data-p=checkin]'))">
+              <div class="fc-ic"><svg width="17" height="17" viewBox="0 0 20 20" fill="#7B68EE"><path fill-rule="evenodd" d="M6 2a1 1 0 0 0-1 1v1H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-1V3a1 1 0 1 0-2 0v1H7V3a1 1 0 0 0-1-1zm0 5a1 1 0 0 0 0 2h8a1 1 0 1 0 0-2H6z" clip-rule="evenodd"/></svg></div>
+              <div><div class="fc-t">Daily Check-in</div><div class="fc-s">Claim your login reward</div></div>
+            </div>
+            <div class="fc dis">
+              <div class="fc-ic"><svg width="17" height="17" viewBox="0 0 20 20" fill="#7B68EE"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0 1 12 2v5h4a1 1 0 0 1 .82 1.573l-7 10A1 1 0 0 1 8 18v-5H4a1 1 0 0 1-.82-1.573l7-10a1 1 0 0 1 1.12-.38z" clip-rule="evenodd"/></svg></div>
+              <div><div class="fc-t">Stamina Tracker</div><div class="fc-s">Coming soon</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+<div id="update-modal" style="
+  display:none; position:fixed; inset:0; z-index:99999;
+  background:rgba(6,5,15,0.97); backdrop-filter:blur(12px);
+  align-items:center; justify-content:center;
+  font-family:'Outfit',sans-serif;
+">
+  <div style="
+    background:#0F0D20; border:1px solid rgba(123,104,238,0.3);
+    border-radius:20px; padding:36px 32px; width:350px; text-align:center;
+    box-shadow:0 0 80px rgba(123,104,238,0.18), 0 0 200px rgba(0,0,0,0.8);
+    position:relative; overflow:hidden;
+  ">
+    <!-- Ambient glow -->
+    <div style="
+      position:absolute; top:-60px; right:-60px; width:220px; height:220px;
+      border-radius:50%; pointer-events:none;
+      background:radial-gradient(circle, rgba(123,104,238,0.08), transparent 70%);
+    "></div>
+ 
+    <!-- Icon -->
+    <div style="
+      width:60px; height:60px; border-radius:18px; margin:0 auto 20px;
+      background:linear-gradient(135deg,rgba(123,104,238,0.2),rgba(123,104,238,0.04));
+      border:1px solid rgba(123,104,238,0.25);
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 0 30px rgba(123,104,238,0.15);
+    ">
+      <svg width="26" height="26" viewBox="0 0 20 20" fill="none">
+        <path fill-rule="evenodd" d="M4 2a1 1 0 0 1 1 1v2.101a7.002 7.002 0 0 1 11.601 2.566 1 1 0 1 1-1.885.666A5.002 5.002 0 0 0 5.999 7H9a1 1 0 0 1 0 2H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1zm.008 9.057a1 1 0 0 1 1.276.61A5.002 5.002 0 0 0 14.001 13H11a1 1 0 1 1 0-2h5a1 1 0 0 1 1 1v5a1 1 0 1 1-2 0v-2.101a7.002 7.002 0 0 1-11.601-2.566 1 1 0 0 1 .61-1.276z" fill="#A594FF" clip-rule="evenodd"/>
+      </svg>
+    </div>
+ 
+    <div style="font-size:18px;font-weight:800;color:#F0ECFF;margin-bottom:6px;letter-spacing:-0.02em;position:relative">
+      Update Required
+    </div>
+    <div style="font-size:13px;color:#7A748A;margin-bottom:6px;font-family:'JetBrains Mono',monospace;position:relative" id="upd-version">
+      v— available
+    </div>
+    <div style="font-size:12px;color:#35324A;margin-bottom:24px;line-height:1.7;position:relative" id="upd-notes"></div>
+ 
+    <button onclick="openDownload()" style="
+      width:100%; padding:13px; border:none; border-radius:11px;
+      background:linear-gradient(135deg,#7B68EE,#9D8FF9);
+      color:#fff; font-size:14px; font-weight:800; cursor:pointer;
+      font-family:'Outfit',sans-serif; letter-spacing:0.02em;
+      box-shadow:0 4px 24px rgba(123,104,238,0.35),inset 0 1px 0 rgba(255,255,255,0.15);
+      transition:all 0.18s ease; position:relative;
+    "
+    onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 32px rgba(123,104,238,0.5),inset 0 1px 0 rgba(255,255,255,0.2)'"
+    onmouseout="this.style.transform='';this.style.boxShadow='0 4px 24px rgba(123,104,238,0.35),inset 0 1px 0 rgba(255,255,255,0.15)'">
+      Download Update
+    </button>
+ 
+    <div style="font-size:11px;color:#35324A;margin-top:14px;font-family:'JetBrains Mono',monospace;position:relative">
+      You must update to continue using BlinxHub.
+    </div>
+  </div>
+</div>
+ 
+<script>
+  let _downloadUrl = ''
+ 
+  window.hsr.onForceUpdate(({ version, downloadUrl, notes }) => {
+    _downloadUrl = downloadUrl
+    document.getElementById('upd-version').textContent = `v${version} is now available`
+    document.getElementById('upd-notes').textContent   = notes || ''
+    const modal = document.getElementById('update-modal')
+    modal.style.display = 'flex'
+  })
+ 
+  function openDownload() {
+    window.hsr.openExternal(_downloadUrl)
+  }
+</script>
+
+    <!-- CHECK-IN PAGE -->
+    <div class="page" id="page-checkin">
+      <div class="pg-head">
+        <div class="pg-eye">Tools</div>
+        <div class="pg-title">Daily Check-in</div>
+        <div class="pg-sub">Claim your HoYoLab reward every day to build your streak.</div>
+      </div>
+
+      <div id="ci-out" class="card" style="text-align:center;padding:40px 20px">
+        <p style="color:var(--text2);font-size:13px;margin-bottom:16px">Sign in to use daily check-in.</p>
+        <button class="btn btn-p" onclick="openLogin()">Sign in with HoYoLab</button>
+      </div>
+
+      <div id="ci-in" style="display:none">
+        <div class="ci-hero">
+          <div class="ci-hero-inner">
+            <div class="ci-img-box" id="ci-hero-img">
+              <span style="font-size:32px;opacity:0.2">—</span>
+            </div>
+            <div class="ci-hero-meta">
+              <div class="ci-hero-label">Today's Reward</div>
+              <div class="ci-hero-name" id="ci-rn">Loading...</div>
+              <div class="ci-hero-qty"  id="ci-rc">×—</div>
+            </div>
+            <div class="ci-streak-ring">
+              <div class="num" id="ci-streak">—</div>
+              <div class="lbl">Days</div>
+            </div>
+          </div>
+        </div>
+
+        <button class="ci-claim-btn" id="ci-btn" onclick="doCI()">
+          <div class="ci-claim-inner">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 0 1 0 1.414l-8 8a1 1 0 0 1-1.414 0l-4-4a1 1 0 0 1 1.414-1.414L8 12.586l7.293-7.293a1 1 0 0 1 1.414 0z" clip-rule="evenodd"/></svg>
+            Check in today
+          </div>
+        </button>
+
+        <div class="ci-status" id="ci-st"></div>
+
+        <div class="card" id="ci-cal" style="display:none">
+          <div class="card-top"><div class="card-h"><span class="card-dot"></span>Monthly Calendar</div></div>
+          <div class="rg" id="ci-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS PAGE -->
+    <div class="page" id="page-settings">
+      <div class="pg-head">
+        <div class="pg-eye">Config</div>
+        <div class="pg-title">Settings</div>
+      </div>
+      <div id="s-in" class="card" style="display:none">
+        <div class="card-top"><div class="card-h"><span class="card-dot"></span>HoYoLab Account</div></div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,rgba(123,104,238,0.2),rgba(123,104,238,0.05));border:1px solid var(--accent-border);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:var(--accent-bright);flex-shrink:0" id="s-av">?</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:var(--text)" id="s-nm">—</div>
+            <div style="font-size:11px;color:var(--text3);margin-top:2px;font-family:'JetBrains Mono',monospace">HoYoLab account</div>
+          </div>
+          <button class="btn btn-d" style="margin-left:auto;padding:7px 14px;font-size:12px" onclick="doLogout()">Sign out</button>
+        </div>
+      </div>
+      <div id="s-out" class="card">
+        <div class="card-top"><div class="card-h"><span class="card-dot"></span>HoYoLab Account</div></div>
+        <p style="font-size:13px;color:var(--text2);margin-bottom:14px">No account connected.</p>
+        <button class="btn btn-p" onclick="openLogin()">Sign in with HoYoLab</button>
+      </div>
+      <div class="card">
+        <div class="card-top"><div class="card-h"><span class="card-dot"></span>Preferences</div></div>
+        <div class="srow"><div><h4>Auto check-in on launch</h4><p>Claim reward when app opens</p></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+        <div class="srow"><div><h4>Launch at startup</h4><p>Open BlinxHub when Windows starts</p></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+        <div class="srow"><div><h4>Desktop notifications</h4><p>Daily reminder to claim your reward</p></div><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+      </div>
+      <div class="card">
+        <div class="card-top"><div class="card-h"><span class="card-dot"></span>App Account</div></div>
+        <div class="srow">
+          <span style="font-size:13px;color:var(--text2)">Logged in as</span>
+          <span class="svl" id="s-local-user">—</span>
+        </div>
+        <div class="srow">
+          <span style="font-size:13px;color:var(--text2)">Role</span>
+          <span class="svl" id="s-local-role">—</span>
+        </div>
+        <div class="srow" style="border-bottom:none">
+          <div><h4>Sign out of BlinxHub</h4><p>Returns to login screen</p></div>
+          <button class="btn btn-d" style="padding:7px 14px;font-size:12px" onclick="doAppLogout()">Sign out</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-top"><div class="card-h"><span class="card-dot"></span>About</div></div>
+        <div class="srow"><span style="font-size:13px;color:var(--text2)">App</span><span class="svl">BlinxHub · HSR Toolkit</span></div>
+        <div class="srow"><span style="font-size:13px;color:var(--text2)">Version</span><span class="svl">1.0.0</span></div>
+        <div class="srow"><span style="font-size:13px;color:var(--text2)">Game</span><span class="svl">Honkai: Star Rail</span></div>
+      </div>
+      <div class="vnote">BlinxHub v1.0.0 · Built for Trailblazers</div>
+    </div>
+
+    <!-- OWNER PAGE -->
+    <div class="page" id="page-owner">
+      <div class="pg-head">
+        <div class="pg-eye">Owner</div>
+        <div class="pg-title">User Management</div>
+        <div class="pg-sub">Create and manage access to BlinxHub.</div>
+      </div>
+
+      <!-- Create User Card -->
+      <div class="card" style="margin-bottom:10px">
+        <div class="card-top">
+          <div class="card-h">
+            <span class="card-dot" style="background:var(--ok);box-shadow:0 0 6px var(--ok)"></span>
+            Create User
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end">
+          <div class="ll-field" style="margin:0">
+            <label class="ll-lbl">Username</label>
+            <input class="ll-inp" id="nu-username" type="text" placeholder="username" autocomplete="off"
+                   onkeydown="if(event.key==='Enter')id('nu-key').focus()">
+          </div>
+          <div class="ll-field" style="margin:0">
+            <label class="ll-lbl">Key</label>
+            <input class="ll-inp" id="nu-key" type="text" placeholder="access-key" autocomplete="off"
+                   onkeydown="if(event.key==='Enter')createUser()">
+          </div>
+          <button class="btn btn-p" id="nu-btn" onclick="createUser()" style="height:40px;padding:0 16px;white-space:nowrap;font-size:13px">
+            + Add
+          </button>
+        </div>
+        <div class="ll-err" id="nu-err" style="margin-top:10px;margin-bottom:0"></div>
+      </div>
+
+      <!-- Users Table -->
+      <div class="card">
+        <div class="card-top">
+          <div class="card-h"><span class="card-dot"></span>All Users</div>
+          <button class="btn btn-g" style="padding:6px 14px;font-size:11px" onclick="loadOwnerPanel()">↻ Refresh</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table class="ou-table">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="ou-tbody">
+              <tr><td colspan="5" class="ou-empty">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /app -->
+
+<script>
+// ══════════════════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════════════════
+const delay = ms     => new Promise(r => setTimeout(r, ms))
+const id    = s      => document.getElementById(s)
+const show  = s      => { const e = id(s); if (e) e.style.display = 'block' }
+const hide  = s      => { const e = id(s); if (e) e.style.display = 'none' }
+const tx    = (s, v) => { const e = id(s); if (e) e.textContent = v }
+
+// ══════════════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════════════
+let li          = false   // HoYoLab logged in
+let localSess   = null    // { username, role }
+
+// ══════════════════════════════════════════════════════════
+// BOOT
+// ══════════════════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', async () => {
+  await delay(1750)
+  id('splash').classList.add('out')
+
+  // Check for in-memory session (persists while app is open)
+  const sess = await window.hsr.getLocalSession()
+  if (sess) {
+    localSess = sess
+    bootApp()
+  } else {
+    // Show local login gate
+    id('local-gate').style.display = 'flex'
+    await delay(10)
+    // gate is already visible; gateIn animation handles entrance
+  }
+})
+
+function bootApp() {
+  // Hide gate, show app
+  const gate = id('local-gate')
+  gate.classList.add('out')
+  setTimeout(() => gate.style.display = 'none', 450)
+  id('app').classList.add('ready')
+
+  // Fill app-account info in settings
+  tx('s-local-user', localSess.username)
+  tx('s-local-role',  localSess.role)
+
+  // Show owner nav only for owner
+  if (localSess.role === 'owner') {
+    id('owner-nav-btn').style.display = 'flex'
+    id('owner-nav-lbl').style.display = 'block'
+  }
+
+  // Wire HoYoLab events
+  window.hsr.onLoginSuccess(u => setIn(u))
+  window.hsr.onLoggedOut(()  => setOut())
+  window.hsr.getSession().then(u => u ? setIn(u) : setOut())
+}
+
+// ══════════════════════════════════════════════════════════
+// LOCAL LOGIN
+// ══════════════════════════════════════════════════════════
+async function doLocalLogin() {
+  const u   = id('ll-username').value.trim()
+  const k   = id('ll-key').value.trim()
+  const err = id('ll-err')
+  const btn = id('ll-submit')
+
+  err.classList.remove('show')
+  if (!u || !k) {
+    err.textContent = 'Please enter your username and key.'
+    err.classList.add('show')
+    return
+  }
+
+  btn.disabled    = true
+  btn.innerHTML   = `<span class="spin"></span> Checking...`
+
+  const r = await window.hsr.localLogin(u, k)
+
+  if (r.ok) {
+    localSess = r
+    bootApp()
+  } else {
+    err.textContent = r.msg || 'Login failed.'
+    err.classList.add('show')
+    btn.disabled  = false
+    btn.textContent = 'Sign in'
+  }
+}
+
+function doAppLogout() {
+  window.hsr.localLogout()
+  localSess = null
+  // Reload to return to gate
+  location.reload()
+}
+
+// ══════════════════════════════════════════════════════════
+// NAV
+// ══════════════════════════════════════════════════════════
+function go(pid, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('on'))
+  document.querySelectorAll('.nb').forEach(b  => b.classList.remove('on'))
+  id('page-' + pid).classList.add('on')
+  if (btn) btn.classList.add('on')
+  if (pid === 'checkin' && li) loadCI()
+  if (pid === 'home'    && li) loadHome()
+  if (pid === 'owner')         loadOwnerPanel()
+}
+
+// ══════════════════════════════════════════════════════════
+// HOYOLAB AUTH STATE
+// ══════════════════════════════════════════════════════════
+function setIn(u) {
+  li = true
+  const n = (u && u.username) ? u.username : 'Trailblazer'
+  const i = n[0].toUpperCase()
+  show('h-in');  hide('h-out')
+  show('ci-in'); hide('ci-out')
+  show('s-in');  hide('s-out')
+  show('sb-in'); hide('sb-out')
+  tx('h-welcome', `Welcome back, ${n}`)
+  tx('sb-av', i); tx('sb-nm', n)
+  tx('s-av',  i); tx('s-nm',  n)
+  loadHome()
+}
+
+function setOut() {
+  li = false
+  hide('h-in');  show('h-out')
+  hide('ci-in'); show('ci-out')
+  hide('s-in');  show('s-out')
+  hide('sb-in'); show('sb-out')
+}
+
+function openLogin() { window.hsr.openLogin() }
+function doLogout()  { window.hsr.logout() }
+
+// ══════════════════════════════════════════════════════════
+// ICON HELPER
+// ══════════════════════════════════════════════════════════
+function imgTag(icon, size) {
+  if (!icon) return `<span style="opacity:0.2;font-size:${Math.floor(size*0.5)}px">?</span>`
+  return `<img src="${icon}" width="${size}" height="${size}" style="object-fit:contain" onerror="this.style.display='none'">`
+}
+
+// ══════════════════════════════════════════════════════════
+// HOME
+// ══════════════════════════════════════════════════════════
+async function loadHome() {
+  const info = await window.hsr.getCheckInInfo()
+  if (!info) return
+
+  const streak = info.total_sign_day || 0
+  const signed = info.today_sign     || false
+
+  tx('h-streak', streak)
+  if (signed) {
+    tx('h-status',   'Checked in')
+    tx('h-status-s', 'Already claimed today')
+  } else {
+    tx('h-status',   'Ready')
+    tx('h-status-s', 'Tap to claim')
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// CHECK-IN
+// ══════════════════════════════════════════════════════════
+async function loadCI() {
+  const info = await window.hsr.getCheckInInfo()
+  if (!info) return
+
+  const btn    = id('ci-btn')
+  const streak = info.total_sign_day || 0
+  const signed = info.today_sign     || false
+  const awards = info.awards         || []
+
+  // Today's reward index
+  const todayIdx = signed ? streak - 1 : streak
+  const ta = awards[todayIdx]
+
+  if (ta) {
+    id('ci-hero-img').innerHTML = imgTag(ta.icon, 68)
+    tx('ci-rn', ta.name)
+    tx('ci-rc', `×${ta.cnt}`)
+  }
+
+  tx('ci-streak', streak)
+
+  if (signed) {
+    btn.disabled  = true
+    btn.innerHTML = `<div class="ci-claim-inner">Already claimed today</div>`
+  } else {
+    btn.disabled  = false
+    btn.innerHTML = `<div class="ci-claim-inner">
+      <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 0 1 0 1.414l-8 8a1 1 0 0 1-1.414 0l-4-4a1 1 0 0 1 1.414-1.414L8 12.586l7.293-7.293a1 1 0 0 1 1.414 0z" clip-rule="evenodd"/>
+      </svg>Check in today</div>`
+  }
+
+  // Calendar — up to 14 days
+  const slice = awards.slice(0, Math.min(awards.length, 14))
+  if (slice.length) {
+    id('ci-grid').innerHTML = slice.map((a, i) => {
+      const isToday = signed ? i === streak - 1 : i === streak
+      const isPast  = i < (signed ? streak - 1 : streak)
+      return `<div class="rc${isPast ? ' past' : ''}${isToday ? ' today' : ''}">
+        ${isPast ? '<span class="ck">✓</span>' : ''}
+        ${imgTag(a.icon, 32)}
+        <span class="ct">×${a.cnt}</span>
+      </div>`
+    }).join('')
+    show('ci-cal')
+  }
+}
+
+async function doCI() {
+  const btn = id('ci-btn')
+  const st  = id('ci-st')
+  btn.disabled  = true
+  btn.innerHTML = `<div class="ci-claim-inner"><span class="spin"></span> Claiming...</div>`
+  st.className  = 'ci-status'
+
+  const r = await window.hsr.doCheckIn()
+
+  if (r.ok === true) {
+    st.className  = 'ci-status show ok'
+    st.innerHTML  = '✓ Reward claimed! Refreshing...'
+    btn.disabled  = true
+    btn.innerHTML = `<div class="ci-claim-inner">Already claimed today</div>`
+    setTimeout(async () => { await loadCI(); await loadHome() }, 1500)
+  } else if (r.ok === 'dupe') {
+    st.className  = 'ci-status show dup'
+    st.innerHTML  = 'Already claimed today.'
+    btn.disabled  = true
+    btn.innerHTML = `<div class="ci-claim-inner">Already claimed today</div>`
+    setTimeout(async () => { await loadCI(); await loadHome() }, 500)
+  } else {
+    st.className  = 'ci-status show err'
+    st.innerHTML  = '✕ ' + (r.msg || 'Something went wrong.')
+    btn.disabled  = false
+    btn.innerHTML = `<div class="ci-claim-inner">
+      <svg width="16" height="16" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 0 1 0 1.414l-8 8a1 1 0 0 1-1.414 0l-4-4a1 1 0 0 1 1.414-1.414L8 12.586l7.293-7.293a1 1 0 0 1 1.414 0z" clip-rule="evenodd"/>
+      </svg>Try again</div>`
+  }
+}
+
+// ══════════════════════════════════════════════════════════
+// OWNER PANEL
+// ══════════════════════════════════════════════════════════
+async function loadOwnerPanel() {
+  id('ou-tbody').innerHTML = '<tr><td colspan="5" class="ou-empty">Loading...</td></tr>'
+  const r = await window.hsr.listUsers()
+  if (!r.ok) {
+    id('ou-tbody').innerHTML = `<tr><td colspan="5" class="ou-empty">Failed to load users.</td></tr>`
+    return
+  }
+  if (!r.users.length) {
+    id('ou-tbody').innerHTML = `<tr><td colspan="5" class="ou-empty">No users found.</td></tr>`
+    return
+  }
+  id('ou-tbody').innerHTML = r.users.map(u => `
+    <tr>
+      <td style="color:var(--text);font-weight:600;font-family:'JetBrains Mono',monospace;font-size:13px">${escHtml(u.username)}</td>
+      <td><span class="rbadge ${u.role}">${u.role}</span></td>
+      <td>
+        <div style="display:flex;align-items:center">
+          <span class="sdot ${u.enabled ? 'on' : 'off'}"></span>
+          <span style="font-size:12px;color:${u.enabled ? 'var(--ok)' : 'var(--text3)'}">${u.enabled ? 'Active' : 'Disabled'}</span>
+        </div>
+      </td>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3)">${u.created || '—'}</td>
+      <td>
+        ${u.role !== 'owner' ? `
+          <div style="display:flex;gap:5px;flex-wrap:wrap">
+            <button class="btn btn-g" style="padding:4px 10px;font-size:11px" onclick="toggleUser('${escHtml(u.username)}',${!u.enabled})">
+              ${u.enabled ? 'Disable' : 'Enable'}
+            </button>
+            <button class="btn btn-g" style="padding:4px 10px;font-size:11px" onclick="openResetKey('${escHtml(u.username)}')">
+              Key
+            </button>
+            <button class="btn btn-d" style="padding:4px 10px;font-size:11px" onclick="removeUser('${escHtml(u.username)}')">
+              Delete
+            </button>
+          </div>
+        ` : '<span style="font-size:11px;color:var(--text3)">Protected</span>'}
+      </td>
+    </tr>
+  `).join('')
+}
+
+async function createUser() {
+  const username = id('nu-username').value.trim()
+  const key      = id('nu-key').value.trim()
+  const err      = id('nu-err')
+  const btn      = id('nu-btn')
+  err.classList.remove('show')
+  if (!username || !key) {
+    err.textContent = 'Username and key are both required.'
+    err.classList.add('show')
+    return
+  }
+  btn.disabled    = true
+  btn.textContent = 'Adding...'
+  const r = await window.hsr.createUser({ username, key })
+  btn.disabled    = false
+  btn.textContent = '+ Add'
+  if (r.ok) {
+    id('nu-username').value = ''
+    id('nu-key').value      = ''
+    await loadOwnerPanel()
+  } else {
+    err.textContent = r.msg
+    err.classList.add('show')
+  }
+}
+
+async function toggleUser(username, enabled) {
+  await window.hsr.updateUser({ username, enabled })
+  loadOwnerPanel()
+}
+
+async function removeUser(username) {
+  if (!confirm(`Delete "${username}"? This cannot be undone.`)) return
+  const r = await window.hsr.deleteUser(username)
+  if (r.ok) loadOwnerPanel()
+  else alert(r.msg)
+}
+
+// Reset key modal
+let rkTarget = null
+function openResetKey(username) {
+  rkTarget = username
+  tx('rk-for', `for ${username}`)
+  id('rk-newkey').value = ''
+  id('rk-err').classList.remove('show')
+  id('rk-modal').classList.add('show')
+  setTimeout(() => id('rk-newkey').focus(), 60)
+}
+function closeResetKey() {
+  id('rk-modal').classList.remove('show')
+  rkTarget = null
+}
+async function confirmResetKey() {
+  const newKey = id('rk-newkey').value.trim()
+  if (!newKey) {
+    id('rk-err').textContent = 'Enter a new key.'
+    id('rk-err').classList.add('show')
+    return
+  }
+  const r = await window.hsr.resetKey({ username: rkTarget, newKey })
+  if (r.ok) { closeResetKey(); loadOwnerPanel() }
+  else {
+    id('rk-err').textContent = r.msg
+    id('rk-err').classList.add('show')
+  }
+}
+
+// ── Escape HTML for safe injection into table ──────────────────────────────
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;')
+}
+
+
+</script>
+</body>
+</html>
