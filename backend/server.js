@@ -48,15 +48,17 @@ function requireOwner(req, res, next) {
 async function initOwner() {
   const db = loadDB()
   if (!db.users.find(u => u.role === 'owner')) {
+    const username = process.env.OWNER_USERNAME || 'owner'
+    const key      = process.env.OWNER_KEY      || 'BLINX-2024'
     db.users.push({
-      username: 'owner',
-      keyHash:  await bcrypt.hash('BLINX-2024', 10),
-      role:     'owner',
-      enabled:  true,
-      created:  new Date().toISOString().split('T')[0]
+      username,
+      keyHash: await bcrypt.hash(key, 10),
+      role:    'owner',
+      enabled: true,
+      created: new Date().toISOString().split('T')[0]
     })
     saveDB(db)
-    console.log('[Auth] Default owner created  →  username: owner   key: BLINX-2024')
+    console.log(`[Auth] Default owner created  →  username: ${username}`)
   }
 }
 
